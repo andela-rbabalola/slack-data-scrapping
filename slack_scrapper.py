@@ -1,20 +1,59 @@
+import os
+from os.path import join, dirname
+
+from dotenv import load_dotenv
 from slackclient import SlackClient
 
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
-token = "xoxp-25081281559-118998934689-184440224640-9325ad860d3a1b304751fbec4c228a78"
+# Get the slack token from the .env file
+token = os.environ.get("SLACK_TOKEN")
 
 sc = SlackClient(token)
 
-# print(sc.api_call("api.test"))
+# Get all channels in the Team
+channels = sc.api_call("channels.list")['channels']
+
+print("There are {} channels in OPEN-Andela.".format(len(channels)))
+
+# Save the channels information to a .txt file
+with open("channels.txt", "w") as textfile:
+    textfile.write(
+        "There are {} channels in OPEN-Andela.\n".format(len(channels)))
+    textfile.write("")
+    for channel in channels:
+        textfile.write("----------------------------------------------- \n")
+        textfile.write("Channel Name: {} \n".format(channel["name"]))
+        textfile.write("Channel Name (Normalized): {} \n".format(
+            channel["name_normalized"]))
+        textfile.write("Number of Members: {} \n".format(
+            channel['num_members']))
+        textfile.write("Channel ID: {} \n".format(channel["id"]))
+        textfile.write("Channel Purpose: {} \n".format(
+            channel["purpose"]["value"]))
+        textfile.write("---------------------------------------------- \n")
 
 # Get all users
-all_users = sc.api_call("users.list")
+all_users = sc.api_call("users.list")["members"]
 
-print(list(all_users.keys()), type(all_users))
+print("There are {} members in the OPEN-Andela Team".format(len(all_users)))
+with open("users.txt", "w") as textfile:
+    for user in all_users:
+        textfile.write("------------------------------------------------ \n")
+        textfile.write("Username: {} \n".format(user["name"]))
+        textfile.write("Bot: {} \n".format(user["is_bot"]))
+        textfile.write("Name: {} \n".format(user["profile"]['real_name']))
+        # I commented this out because bots don't have email and it will break the code.
+        # textfile.write("E-mail: {} \n".format(user["profile"]["email"]))
+        textfile.write("ID: {} \n".format(user["id"]))
+        textfile.write("------------------------------------------------ \n")
 
-# The data returned from all_users is a dictionary with 3 keys: ok, members and cache_ts
-
-# How many users do we get?
-print(len(all_users['members']))
-
-# Let us look at the data
+# Post a message on the api_test channel
+message = input(
+    "Enter the message you want to post on the api_test channel: \n")
+sc.api_call(
+    "chat.postMessage",
+    channel="#api_test",
+    text=message
+)
