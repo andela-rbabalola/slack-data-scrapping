@@ -20,7 +20,9 @@ Running the `slack_scrapper.py` script with the command `python slack_scrapper.p
   - Saves the list of channels on OPEN-Andela to a `channels.txt` file.
   - Save user details to a `user.txt` file.
   - Post a message to the `api_test` channel.
+  - Retrieve all message from the default channel(#api_test) or pass the channel ID as an argument. e.g `python slack_scrapper.py C3662H51`
 
 ## Contributors
 - **Rotimi Babalola**
 - **Olajide Bolaji 'Nuel**
+- **Inumidun Amao**
