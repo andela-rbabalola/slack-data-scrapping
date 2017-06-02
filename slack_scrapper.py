@@ -1,4 +1,6 @@
 import os
+import requests
+import sys
 from os.path import join, dirname
 
 from dotenv import load_dotenv
@@ -6,11 +8,21 @@ from slackclient import SlackClient
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
-
+ 
 # Get the slack token from the .env file
 token = os.environ.get("SLACK_TOKEN")
 
 sc = SlackClient(token)
+
+#Get all messages in a channel
+def allMessages(channel = 'C5GRK45A9'):
+    msg_endpoint = 'https://slack.com/api/channels.history?token=%s&channel=%s&pretty=1' % (token, channel)
+    all_messages = requests.get(msg_endpoint)
+    text_all_message = all_messages.text
+    with open("messages.json", "w") as message_file:
+        message_file.write(text_all_message);
+        message_file.close()
+    return all_messages.json()    
 
 # Get all channels in the Team
 channels = sc.api_call("channels.list")['channels']
@@ -48,6 +60,8 @@ with open("users.txt", "w") as textfile:
         # textfile.write("E-mail: {} \n".format(user["profile"]["email"]))
         textfile.write("ID: {} \n".format(user["id"]))
         textfile.write("------------------------------------------------ \n")
+
+allMessages(sys.args[1])
 
 # Post a message on the api_test channel
 message = input(
